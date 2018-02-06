@@ -1,0 +1,175 @@
+﻿@{
+	ViewData["Title"] = "Home Page";
+}
+
+@section scripts{ 
+<script>
+    $(function () {
+        var crudServiceBaseUrl = "./api/grid";
+        var dataSource = new kendo.data.DataSource({
+            serverFiltering: true,
+            serverPaging: true,
+            serverSorting: true,
+            //serverGrouping: true,
+            //serverAggregates: true,
+            page:1,
+            pageSize: 20,
+            total: 0,
+            batch: true,
+            filter: [],
+            transport: {
+                read: {
+                    url: crudServiceBaseUrl,
+                    type: "GET",
+                    dataType: "json",
+                    contentType: 'application/json'
+                },
+                update: {
+                    url: crudServiceBaseUrl,
+                    type: "PUT",
+                    dataType: "json",
+                    contentType: 'application/json'
+                },
+                destroy: {
+                    url: crudServiceBaseUrl,
+                    type: "DELETE",
+                    dataType: "json",
+                    contentType: 'application/json'
+                },
+                create: {
+                    url: crudServiceBaseUrl,
+                    type: "POST",
+                    dataType: "json",
+                    contentType: 'application/json'
+                },
+                parameterMap: function (options, operation) {   // 파라메터 인자 정의
+                    if (operation == "read") {
+                        if (options.sort && options.sort.length > 0) {
+                            options.sort = options.sort[0].field + '-' + options.sort[0].dir;
+                        }
+                        return options;
+                    } else if (options.models && options.models.length > 0) {
+                        var model = options.models[0];
+                        if (model.OrderId == undefined || model.OrderId == null) {
+                            model.OrderId = 0;
+                        }
+                        return kendo.stringify(model);
+                    }
+                }
+            },
+            schema: {   // 데이터 스키마 정의
+                data: "Data",
+                total: 'Total',
+                errors: "Errors",
+                model: {
+                    id: "OrderId",
+                    fields: {                           // 데이터 컬럼 정의
+                        OrderId: { type: "number", editable: false, nullable: true },
+                        Freight: { type: "number", validation: { required: true, min: 1 }, defaultValue: 100 },
+                        ShipName: { type: "string", defaultValue: 'ShipName', validation: { required: true } },
+                        OrderDate: { type: "date", defaultValue: new Date(), validation: { required: true } },
+                        ShipCity: { type: "string", defaultValue: 'ShipCity' }
+                    }
+                }
+            }
+        });
+
+        // kendo grid
+        var grid = $("#grid1").kendoGrid({
+            //toolbar: ["create"],                        // 툴바 사용
+            //toolbar: [
+            //    { "name": "create", template: "<img class='k-grid-add' src='add.png'/>sdf" },
+            //    { "name": "save", template: "<img class='k-grid-save-changes' src='save.png'/>asdf" },
+            //    { "name": "cancel", template: "<img class='k-grid-cancel-changes' src='cancel.png'/>aaaaaaaa" }
+            //],
+            toolbar: [
+                { name: "create", text: "추가" },
+                { name: "cancel", text: "취소" }
+            ],
+            dataSource: dataSource,                 //datasource를 사용하여 초기화
+            height: 550,
+            filterable: true,                           // 필터 사용 여부
+            sortable: true,                             // 정렬 사용 여부
+            selectable: true,                           // 선택 가능 여부, multiple row, multiple cell
+            editable: "popup",                      // 수정 모드
+            pageable: {
+                buttonCount: 7
+            },
+            filterable: {
+                messages: {
+                    selectedItemsFormat: "{0} selected items"
+                }
+            },
+            columns: [                                  // 그리드 컬럼 정의
+                { title: "Order Id", field: "OrderId", filterable: false, encoded: true },
+                { title: "Freight", field: "Freight", filterable: false, encoded: true },
+                { title: "Order Date", field: "OrderDate", format: "{0:yyyy/MM/dd}" },
+                { title: "Ship Name", field: "ShipName" },
+                { title: "Ship City", field: "ShipCity" },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }
+            ],
+            // events
+            change: onChange,
+            dataBound: onDataBound,
+            dataBinding: onDataBinding,
+            sort: onSorting,
+            filter: onFiltering,
+            group: onGrouping,
+            page: onPaging,
+            groupExpand: onGroupExpand,
+            groupCollapse: onGroupCollapse,
+        });
+
+        function onChange(arg) {
+            var selected = $.map(this.select(), function (item) {
+                return $(item).text();
+            });
+
+            console.log("Selected: " + selected.length + " item(s), [" + selected.join(", ") + "]");
+        }
+
+        function onDataBound(arg) {
+            console.log("Grid data bound");
+        }
+
+        function onDataBinding(arg) {
+            console.log("Grid data binding");
+        }
+
+        function onSorting(arg) {
+            console.log("Sorting on field: " + arg.sort.field + ", direction:" + (arg.sort.dir || "none"));
+        }
+
+        function onFiltering(arg) {
+            console.log("Filter on " + kendo.stringify(arg.filter));
+        }
+
+        function onPaging(arg) {
+            console.log("Paging to page index:" + arg.page);
+        }
+
+        function onGrouping(arg) {
+            console.log("Group on " + kendo.stringify(arg.groups));
+        }
+
+        function onGroupExpand(arg) {
+            console.log("The group to be expanded: " + kendo.stringify(arg.group));
+        }
+
+        function onGroupCollapse(arg) {
+            console.log("The group to be collapsed: " + kendo.stringify(arg.group));
+        }
+    });
+</script>    
+}
+<div class="now">
+    <div class="col-xs-18 col-md-12">
+        <div id="grid1"></div>
+    </div>
+</div>
+
+<div class="now">
+    <div class="col-xs-18 col-md-12">
+        
+    </div>
+</div>
