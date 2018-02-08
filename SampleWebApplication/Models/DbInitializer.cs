@@ -1,4 +1,6 @@
 ﻿using Kendo.Mvc.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,17 +10,25 @@ namespace SampleWebApplication.Models
 {
     public class DbInitializer
     {
-        public static void Initialize(BloggingContext context)
+        public static async Task InitializeDatabaseAsync(IServiceProvider serviceProvider, bool createUsers = true)
         {
-            var isEnsulreCreated = context.Database.EnsureCreated();
-            if (isEnsulreCreated)
+            using (var serviceScope = serviceProvider.CreateScope())
             {
+                var scopeServiceProvider = serviceScope.ServiceProvider;
+                var db = scopeServiceProvider.GetService<BloggingContext>();
 
+                if (await db.Database.EnsureCreatedAsync())
+                {
+                    await DbInitializer.InitializeAsync(db);
+                }
             }
+        }
 
+        public static async Task<bool> InitializeAsync(BloggingContext context)
+        {
             if (context.Blogs.Any())
             {
-                return;
+                return await Task.FromResult(true);
             }
             else
             {
@@ -31,7 +41,7 @@ namespace SampleWebApplication.Models
 
             if (context.OrderView.Any())
             {
-                return;   // DB has been seeded
+                return await Task.FromResult(false);   // DB has been seeded
             }
             else
             {
@@ -66,6 +76,37 @@ namespace SampleWebApplication.Models
             //}
 
             context.SaveChanges();
+
+            return await Task.FromResult<bool>(true);
+        }
+
+        // https://github.com/aspnet/MusicStore/blob/dev/samples/MusicStore/Models/SampleData.cs
+        // TODO [EF] This may be replaced by a first class mechanism in EF
+        private static async Task AddOrUpdateAsync<TEntity>(
+            IServiceProvider serviceProvider,
+            Func<TEntity, object> propertyToMatch, IEnumerable<TEntity> entities)
+            where TEntity : class
+        {
+            // Query in a separate context so that we can attach existing entities as modified
+            List<TEntity> existingData;
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var db = serviceScope.ServiceProvider.GetService<BloggingContext>();
+                existingData = db.Set<TEntity>().ToList();
+            }
+
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var db = serviceScope.ServiceProvider.GetService<BloggingContext>();
+                foreach (var item in entities)
+                {
+                    db.Entry(item).State = existingData.Any(g => propertyToMatch(g).Equals(propertyToMatch(item)))
+                        ? EntityState.Modified
+                        : EntityState.Added;
+                }
+
+                await db.SaveChangesAsync();
+            }
         }
     }
 }

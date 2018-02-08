@@ -70,6 +70,8 @@ namespace SampleWebApplication
 
             // Configure Kendo UI
             app.UseKendo(env);
+
+            DbInitializer.InitializeDatabaseAsync(app.ApplicationServices).Wait();
         }
     }
 }

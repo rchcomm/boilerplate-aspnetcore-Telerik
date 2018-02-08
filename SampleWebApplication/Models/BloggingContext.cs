@@ -16,7 +16,7 @@ namespace SampleWebApplication.Models
         public BloggingContext(DbContextOptions<BloggingContext> options)
             : base(options)
         {
-            DbInitializer.Initialize(this);
+            
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
