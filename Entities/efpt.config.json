@@ -1,0 +1,1 @@
+﻿{"ContextClassName":"Myfile1Context","DefaultDacpacSchema":null,"IdReplace":true,"IncludeConnectionString":true,"OutputPath":"","ProjectRootNamespace":"Entities","SelectedToBeGenerated":0,"Tables":["dbo.TB_File_Info","dbo.TB_File_Meta","dbo.TB_Folder_Info","dbo.TB_Folder_Meta"],"UseDatabaseNames":true,"UseFluentApiOnly":true,"UseHandleBars":false,"UseInflector":false}

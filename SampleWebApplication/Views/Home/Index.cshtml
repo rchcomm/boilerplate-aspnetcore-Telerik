@@ -7,6 +7,7 @@
     $(function () {
         var crudServiceBaseUrl = "./api/grid";
         var dataSource = new kendo.data.DataSource({
+            type: 'aspnetmvc-ajax',
             serverFiltering: true,
             serverPaging: true,
             serverSorting: true,
@@ -43,9 +44,17 @@
                     contentType: 'application/json'
                 },
                 parameterMap: function (options, operation) {   // 파라메터 인자 정의
+                    
                     if (operation == "read") {
                         if (options.sort && options.sort.length > 0) {
                             options.sort = options.sort[0].field + '-' + options.sort[0].dir;
+                        }
+                        debugger
+                        if (options.filter && options.filter.filters.length > 0) {
+                            //ShipName~contains~'ss'
+                            //ShipName~contains~'16'~or~ShipName~contains~'13'
+                            //ShipName~contains~'16'~or~ShipName~contains~'13')~and~(OrderDate~eq~datetime'2018-02-13T00-00-00'~or~OrderDate~eq~datetime'2018-02-07T00-00-00')
+                            options.filter = options.filter.filters[0].field + '~' + options.filter.filters[0].operator + "~'" + options.filter.filters[0].value + "'";
                         }
                         return options;
                     } else if (options.models && options.models.length > 0) {
@@ -120,8 +129,17 @@
             groupCollapse: onGroupCollapse,
         });
 
+        $("#productName").kendoAutoComplete({
+            autoBind: false,
+            dataSource: dataSource,
+            dataTextField: "ShipName",
+            filter: "contains",
+            minLength: 2
+        });
+
         function onChange(arg) {
             var selected = $.map(this.select(), function (item) {
+                //debugger
                 return $(item).text();
             });
 
@@ -167,9 +185,21 @@
         <div id="grid1"></div>
     </div>
 </div>
-
+<hr />
 <div class="now">
     <div class="col-xs-18 col-md-12">
-        
+        <fieldset>
+            <legend>Details</legend>
+            <label>Order Id : </label>
+            <input type="text" />
+        </fieldset>
+
+        <div class="demo-section k-content wide">
+            <div>
+                <h4>Select product name</h4>
+                <input id="productName" name="productName" />
+            </div>
+            <div id="grid"></div>
+        </div>
     </div>
 </div>
