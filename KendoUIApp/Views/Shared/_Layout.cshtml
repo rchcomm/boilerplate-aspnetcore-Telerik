@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title - My Telerik MVC Application</title>
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    
+	<link href="@Url.Content("~/Content/kendo/2018.1.117/kendo.common-material.min.css")" rel="stylesheet" type="text/css" />
+	<link href="@Url.Content("~/Content/kendo/2018.1.117/kendo.mobile.all.min.css")" rel="stylesheet" type="text/css" />
+	<link href="@Url.Content("~/Content/kendo/2018.1.117/kendo.material.min.css")" rel="stylesheet" type="text/css" />
+	<script src="@Url.Content("~/Scripts/kendo/2018.1.117/jquery.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/kendo/2018.1.117/angular.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/kendo/2018.1.117/jszip.min.js")"></script>
+	<script src="@Url.Content("~/Scripts/kendo/2018.1.117/kendo.all.min.js")"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row k-header">
+            <h1>Project Title</h1>
+            <div id="responsive-panel">
+                <ul id="menu">
+                    <li>Item 1
+                    </li>
+                    <li>Item 2
+                    </li>
+                    <li>Item 3
+                    </li>
+                    <li>Item 4
+                    </li>
+                    <li>Item 5
+                    </li>
+                    <li disabled="disabled">Disabled Item
+                    </li>
+                </ul>
+            </div>
+            <button id="configure" class="k-rpanel-toggle k-button k-primary btn-toggle"><span class="k-icon k-i-hbars"></span></button>
+        </div>
+    </div>
+
+    @RenderBody()
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-18 col-md-12">
+                <div id="grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container-fluid">
+            <p class="text-muted">Copyright © @DateTime.Now.Year Progress Software Corporation and/or its subsidiaries or affiliates. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        $(document).ready(function () {
+            $("#menu").kendoMenu();
+
+            $("#responsive-panel").kendoResponsivePanel({
+                breakpoint: 768,
+                autoClose: false,
+                orientation: "top"
+            });
+        });
+        function onclick(e) {
+            $("#responsive-panel").getKendoResponsivePanel().toggle();
+        }
+    </script>
+</body>
+</html>

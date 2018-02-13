@@ -1,0 +1,214 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="now">
+    <div class="col-xs-12 col-md-6">
+        <div id="grid1"></div>
+    </div>
+    <div class="col-xs-12 col-md-6">
+        <form>
+            <div class="form-group row">
+                <label for="OrderId" class="col-sm-3 col-form-label">Order Id</label>
+                <div class="col-sm-9">
+                    <input type="text" readonly class="form-control" id="OrderId" value="3" style="width:85%" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="Freight" class="col-sm-3 col-form-label">Freight</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="Freight" value="1581" style="width:85%" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="OrderDate" class="col-sm-3 col-form-label">Order Date</label>
+                <div class="col-sm-9">
+                    <input class="form-control" id="OrderDate" value="2017-02-08" style="width:85%" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="ShipName" class="col-sm-3 col-form-label">Ship Name</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="ShipName" value="ShipName 159" style="width:85%" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="ShipCity" class="col-sm-3 col-form-label">Ship City</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="ShipCity" value="ShipCity 159" style="width:85%" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="AutoComplete" class="col-sm-3 col-form-label">AutoComplete</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" id="AutoComplete" value="" style="width:85%" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="MultiSelect" class="col-sm-3 col-form-label">MultiSelect</label>
+                <div class="col-sm-9">
+                    <select id="MultiSelect" multiple="multiple" style="width:85%">
+                        <option>item1</option>
+                        <option>item2</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-offset-3 col-sm-8">
+                    <button type="button" class="btn btn-primary btn-block" data-button="save">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="now">
+    <div class="col-xs-18 col-md-12">
+    </div>
+</div>
+<script>
+    var dom = jQuery;
+    var af = {};
+
+    // af 기본 함수 스타트 각종 Init 및 bind 실행
+    af.pageStart = function () {
+        // 폼 초기화
+        af.formView.initView();
+    }
+
+    // 폼 view 설정
+    af.formView = {
+        initView: function () {
+            // kendoNumericTextBox
+            dom("#Freight").kendoNumericTextBox({
+                format: "n2",
+                min: 1,
+                step: 1
+            });
+
+            // kendoDatePicker
+            dom("#OrderDate").kendoDatePicker({
+                format: "yyyy/MM/dd",
+                animation: {
+                    close: {
+                        effects: "fadeOut zoom:out",
+                        duration: 300
+                    },
+                    open: {
+                        effects: "fadeIn zoom:in",
+                        duration: 300
+                    }
+                }
+            });
+
+            // kendoDropDownList -> 정의된 목록에서만 선택가능
+            dom("#ShipName").kendoDropDownList({
+                dataSource: {
+                    data: ["ShipName 159", "ShipName 166"]
+                },
+                animation: false
+            });
+
+            // kendoComboBox -> 사용자 정의 목록추가 가능
+            dom("#ShipCity").kendoComboBox({
+                dataSource: {
+                    data: ["ShipCity 159", "ShipCity 166"]
+                },
+                animation: false
+            });
+
+            // kendoAutoComplete
+            dom("#AutoComplete").kendoAutoComplete({
+                autoWidth: true,
+                dataSource: {
+                    data: ["hwshin", "rchcomm"]
+                },
+                animation: false
+            });
+
+            // kendoMultiSelect
+            dom("#MultiSelect").kendoMultiSelect({
+                dataSource: {
+                    data: ["hwshin", "rchcomm"]
+                },
+                animation: {
+                    open: {
+                        effects: "zoom:in",
+                        duration: 300
+                    }
+                }
+            });
+        }
+    }
+
+    // 폼 button view 설정
+    af.buttonView = {
+        list: [],
+        initView: function () {
+            this.list = af.gridView.target.data("kendoGrid").dataSource.view();
+            this.eventBind();
+        },
+        eventBind: function () {
+            var getData = this.getData.bind(this);
+            dom("[data-button='save']").on("click", function () {
+                var list = getData();
+                console.log(list);
+                alert("grid data count=" + list.length);
+            });
+        },
+        getData: function () {
+            return this.list;
+        }
+    }
+
+    $(document).ready(function () {
+
+        $(".textButton").kendoButton();
+
+        $("#grid1").kendoGrid({
+            dataSource: {
+                type: "odata",
+                transport: {
+                    read: "https://demos.telerik.com/kendo-ui/service/Northwind.svc/Orders"
+                },
+                schema: {
+                    model: {
+                        fields: {
+                            OrderID: { type: "number" },
+                            Freight: { type: "number" },
+                            ShipName: { type: "string" },
+                            OrderDate: { type: "date" },
+                            ShipCity: { type: "string" }
+                        }
+                    }
+                },
+                pageSize: 20
+            },
+            height: 550,
+            filterable: true,
+            sortable: true,
+            pageable: true,
+            columns: [{
+                field: "OrderID",
+                filterable: false
+            },
+                "Freight",
+            {
+                field: "OrderDate",
+                title: "Order Date",
+                format: "{0:MM/dd/yyyy}"
+            }, {
+                field: "ShipName",
+                title: "Ship Name"
+            }, {
+                field: "ShipCity",
+                title: "Ship City"
+            }
+            ]
+        });
+
+
+        af.pageStart();
+    });
+</script>
